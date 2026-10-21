@@ -22,7 +22,7 @@ export function Hero() {
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">
             Symptom checker and clinic locator
           </p>
-          <h1 className="mt-5 font-serif text-[2.6rem] leading-[1.05] tracking-tight text-ink sm:text-6xl">
+          <h1 className="mt-5 text-balance font-serif text-[2.6rem] leading-[1.05] tracking-tight text-ink sm:text-6xl">
             Know how soon to seek care, <em className="text-accent">and where to go.</em>
           </h1>
           <p className="mt-6 max-w-lg text-lg leading-relaxed text-ink-2">
