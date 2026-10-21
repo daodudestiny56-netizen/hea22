@@ -3,7 +3,7 @@
 import "leaflet/dist/leaflet.css";
 import type { CircleMarker as LeafletCircleMarker, Map as LeafletMap } from "leaflet";
 import { useEffect, useRef } from "react";
-import { Circle, CircleMarker, MapContainer, Popup, TileLayer, useMap } from "react-leaflet";
+import { AttributionControl, Circle, CircleMarker, MapContainer, Popup, TileLayer, useMap } from "react-leaflet";
 import { directionsUrl, formatDistance, type LatLon } from "@/lib/geo/distance";
 import { facilityLabels, type Facility, type FacilityType } from "@/lib/geo/facilities";
 
@@ -61,12 +61,13 @@ export default function ClinicMap({
       center={[center.lat, center.lon]}
       zoom={6}
       scrollWheelZoom
+      attributionControl={false}
       className="h-full w-full"
     >
+      <AttributionControl prefix='<a href="https://leafletjs.com">Leaflet</a>' />
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-        subdomains="abcd"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         maxZoom={19}
       />
       <ViewController center={center} radius={radius} hasOrigin={origin !== null} />

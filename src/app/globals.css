@@ -62,6 +62,11 @@ body {
   background: var(--color-paper-2);
 }
 
+/* Mute the default OSM colours so markers stand out against the warm palette */
+.leaflet-tile-pane {
+  filter: grayscale(0.55) sepia(0.12) contrast(0.95);
+}
+
 .leaflet-popup-content-wrapper {
   border-radius: 6px;
   box-shadow: 0 4px 16px rgb(29 28 26 / 0.12);
