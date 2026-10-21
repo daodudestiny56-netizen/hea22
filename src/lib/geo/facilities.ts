@@ -20,10 +20,19 @@ export const facilityLabels: Record<FacilityType, string> = {
 
 export function buildOverpassQuery({ lat, lon }: LatLon, radiusMeters: number): string {
   const around = `(around:${radiusMeters},${lat},${lon})`;
+  // Exact tag matches are cheaper for the server than a regex filter
+  const filters = [
+    "amenity=hospital",
+    "amenity=clinic",
+    "amenity=doctors",
+    "healthcare=hospital",
+    "healthcare=clinic",
+    "healthcare=doctor",
+    "healthcare=centre",
+  ];
   return `[out:json][timeout:25];
 (
-  nwr["amenity"~"^(hospital|clinic|doctors)$"]${around};
-  nwr["healthcare"~"^(hospital|clinic|doctor|centre)$"]${around};
+${filters.map((f) => `  nwr[${f}]${around};`).join("\n")}
 );
 out center tags 150;`;
 }
