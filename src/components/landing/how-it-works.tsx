@@ -31,7 +31,7 @@ export function HowItWorks() {
           {steps.map((step, i) => (
             <Reveal as="li" key={step.title} delay={i * 120} className="group">
               <span className="reveal-rule block h-px bg-ink" aria-hidden="true" />
-              <span className="mt-6 block font-display text-5xl font-medium tabular-nums text-sand transition-colors duration-500 group-hover:text-accent/40">
+              <span className="mt-6 block font-display text-5xl font-medium tabular-nums text-ink/15 transition-colors duration-500 group-hover:text-accent/50">
                 0{i + 1}
               </span>
               <h3 className="mt-4 text-lg font-semibold text-ink">{step.title}</h3>
