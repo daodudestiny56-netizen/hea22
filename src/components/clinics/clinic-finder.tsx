@@ -6,6 +6,7 @@ import type { GeocodeResult } from "@/app/api/geocode/route";
 import { Crosshair, Phone } from "@/components/icons";
 import { directionsUrl, distanceKm, formatDistance, type LatLon } from "@/lib/geo/distance";
 import { facilityLabels, type Facility, type FacilityType } from "@/lib/geo/facilities";
+import { formatAccuracy, locatePrecisely, POOR_ACCURACY_METERS } from "@/lib/geo/locate";
 import { site } from "@/lib/site";
 import type { FacilityWithDistance } from "./clinic-map";
 
@@ -16,7 +17,12 @@ const ClinicMap = dynamic(() => import("./clinic-map"), {
 
 type Filter = "all" | FacilityType;
 type Status = "idle" | "locating" | "loading" | "ready" | "error";
-type Origin = LatLon & { label: string };
+type Origin = LatLon & {
+  label: string;
+  /** Uncertainty in metres for device readings, null for searched or pinned places */
+  accuracy: number | null;
+  source: "device" | "search" | "pin";
+};
 
 const radii = [2000, 5000, 10000, 20000];
 
@@ -33,16 +39,23 @@ export function ClinicFinder({ initialFilter = "all" }: { initialFilter?: Filter
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<GeocodeResult[] | null>(null);
 
+  const [fixAccuracy, setFixAccuracy] = useState<number | null>(null);
+  const [picking, setPicking] = useState(false);
+
   const listRef = useRef<HTMLUListElement>(null);
 
+  // Depend on the coordinates only, so updating the place label does not refetch
+  const originLat = origin?.lat;
+  const originLon = origin?.lon;
+
   useEffect(() => {
-    if (!origin) return;
+    if (originLat === undefined || originLon === undefined) return;
     const controller = new AbortController();
     setStatus("loading");
     setError(null);
     setSelectedId(null);
 
-    fetch(`/api/clinics?lat=${origin.lat}&lon=${origin.lon}&radius=${radius}`, { signal: controller.signal })
+    fetch(`/api/clinics?lat=${originLat}&lon=${originLon}&radius=${radius}`, { signal: controller.signal })
       .then(async (res) => {
         const body = await res.json();
         if (!res.ok) throw new Error(body.error ?? "Something went wrong.");
@@ -56,7 +69,7 @@ export function ClinicFinder({ initialFilter = "all" }: { initialFilter?: Filter
       });
 
     return () => controller.abort();
-  }, [origin, radius]);
+  }, [originLat, originLon, radius]);
 
   const withDistance: FacilityWithDistance[] = useMemo(() => {
     if (!origin) return [];
@@ -74,7 +87,19 @@ export function ClinicFinder({ initialFilter = "all" }: { initialFilter?: Filter
     return c;
   }, [withDistance]);
 
-  function locate() {
+  /** Replace the label with the place name for these coordinates, unless the user has moved on */
+  async function describe(point: LatLon) {
+    try {
+      const res = await fetch(`/api/reverse?lat=${point.lat}&lon=${point.lon}`);
+      const { label } = await res.json();
+      if (!label) return;
+      setOrigin((prev) => (prev && prev.lat === point.lat && prev.lon === point.lon ? { ...prev, label } : prev));
+    } catch {
+      // Keep the generic label
+    }
+  }
+
+  async function locate() {
     if (!("geolocation" in navigator)) {
       setError("Your browser cannot share its location. Search for your town instead.");
       setStatus("error");
@@ -82,21 +107,31 @@ export function ClinicFinder({ initialFilter = "all" }: { initialFilter?: Filter
     }
     setStatus("locating");
     setError(null);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setResults(null);
-        setOrigin({ lat: pos.coords.latitude, lon: pos.coords.longitude, label: "Your current location" });
-      },
-      (err) => {
-        setError(
-          err.code === err.PERMISSION_DENIED
-            ? "Location access was blocked. You can search for your town or area instead."
-            : "We could not get your location. Please search for your town or area instead.",
-        );
-        setStatus("error");
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 },
-    );
+    setResults(null);
+    setPicking(false);
+    setFixAccuracy(null);
+
+    try {
+      const fix = await locatePrecisely({ onProgress: (f) => setFixAccuracy(f.accuracy) });
+      setOrigin({ lat: fix.lat, lon: fix.lon, accuracy: fix.accuracy, source: "device", label: "Your current location" });
+      describe(fix);
+    } catch (err) {
+      const denied = (err as GeolocationPositionError).code === 1;
+      setError(
+        denied
+          ? "Location access was blocked. Allow location for this site in your browser settings, or search for your town instead."
+          : "We could not get your location. Please search for your town or area instead.",
+      );
+      setStatus("error");
+    } finally {
+      setFixAccuracy(null);
+    }
+  }
+
+  function moveOrigin(point: LatLon) {
+    setPicking(false);
+    setOrigin({ ...point, accuracy: null, source: "pin", label: "Pinned location" });
+    describe(point);
   }
 
   async function search(e: React.FormEvent) {
@@ -118,8 +153,9 @@ export function ClinicFinder({ initialFilter = "all" }: { initialFilter?: Filter
   }
 
   function choose(place: GeocodeResult) {
-    setOrigin({ lat: place.lat, lon: place.lon, label: place.label });
+    setOrigin({ lat: place.lat, lon: place.lon, label: place.label, accuracy: null, source: "search" });
     setResults(null);
+    setPicking(false);
     setQuery(place.label.split(",")[0]);
   }
 
@@ -139,7 +175,11 @@ export function ClinicFinder({ initialFilter = "all" }: { initialFilter?: Filter
             className="inline-flex items-center justify-center gap-2 rounded-md bg-ink px-4 py-3 text-sm font-medium text-paper hover:bg-ink-2 disabled:opacity-60"
           >
             <Crosshair />
-            {status === "locating" ? "Finding you..." : "Use my location"}
+            {status === "locating"
+              ? fixAccuracy !== null
+                ? `Refining, within ${formatAccuracy(fixAccuracy)}...`
+                : "Finding you..."
+              : "Use my location"}
           </button>
 
           <div className="relative">
@@ -203,9 +243,17 @@ export function ClinicFinder({ initialFilter = "all" }: { initialFilter?: Filter
           </div>
         </div>
 
-        <p className="mt-4 text-xs text-muted">
-          Your location is only used to search the map. It is never saved.
-        </p>
+        <div className="mt-4 flex flex-col gap-2 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
+          <p>Your location is only used to search the map. It is never saved.</p>
+          <button
+            type="button"
+            onClick={() => setPicking((p) => !p)}
+            aria-pressed={picking}
+            className="self-start font-medium text-accent underline underline-offset-4 sm:self-auto"
+          >
+            {picking ? "Cancel setting location" : "Set my location on the map"}
+          </button>
+        </div>
       </section>
 
       {error && (
@@ -213,6 +261,8 @@ export function ClinicFinder({ initialFilter = "all" }: { initialFilter?: Filter
           {error}
         </p>
       )}
+
+      {origin && <LocationStatus origin={origin} onAdjust={() => setPicking(true)} />}
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="relative isolate h-[22rem] overflow-hidden rounded-xl border border-line lg:sticky lg:top-6 lg:h-[36rem]">
@@ -223,7 +273,16 @@ export function ClinicFinder({ initialFilter = "all" }: { initialFilter?: Filter
             facilities={visible}
             selectedId={selectedId}
             onSelect={select}
+            picking={picking}
+            onMoveOrigin={moveOrigin}
           />
+          {picking && (
+            <div className="pointer-events-none absolute inset-x-0 top-3 z-[600] flex justify-center px-3">
+              <span className="rounded-md bg-ink px-4 py-2 text-sm text-paper shadow">
+                Tap the map where you are. Zoom in for a precise spot.
+              </span>
+            </div>
+          )}
           {status === "loading" && (
             <div className="absolute inset-0 z-[500] flex items-center justify-center bg-paper/50">
               <span className="rounded-md bg-paper px-4 py-2.5 text-center text-sm shadow">
@@ -304,6 +363,44 @@ export function ClinicFinder({ initialFilter = "all" }: { initialFilter?: Filter
           </ul>
         </section>
       </div>
+    </div>
+  );
+}
+
+function LocationStatus({ origin, onAdjust }: { origin: Origin; onAdjust: () => void }) {
+  const poor = origin.source === "device" && origin.accuracy !== null && origin.accuracy > POOR_ACCURACY_METERS;
+
+  const detail =
+    origin.source === "device"
+      ? `Detected by your device, accurate to about ${formatAccuracy(origin.accuracy ?? 0)}.`
+      : origin.source === "pin"
+        ? "Set by you on the map."
+        : "From your search.";
+
+  return (
+    <div
+      className={`flex flex-col gap-3 rounded-xl border px-5 py-4 text-sm sm:flex-row sm:items-center sm:justify-between ${
+        poor ? "border-urgent/25 bg-urgent-soft" : "border-line bg-paper"
+      }`}
+    >
+      <div className="min-w-0">
+        <p className="font-semibold text-ink">
+          {poor ? "This location may be wrong: " : "Searching near "}
+          <span className="font-normal">{origin.label}</span>
+        </p>
+        <p className="mt-0.5 text-ink-2">
+          {detail}
+          {poor &&
+            " Your device estimated this from your network, which can place you in another town. Search for your town or set your location on the map."}
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={onAdjust}
+        className="shrink-0 rounded-md border border-ink/15 bg-paper px-4 py-2 font-medium hover:border-ink/30"
+      >
+        {poor ? "Fix my location" : "Not right? Adjust"}
+      </button>
     </div>
   );
 }
