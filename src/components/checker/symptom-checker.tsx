@@ -138,7 +138,7 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-xl border border-line bg-paper">
+    <section className="animate-rise rounded-2xl border border-line bg-paper">
       <div className="border-b border-line px-6 py-5 sm:px-8">
         <h2 className="font-display font-semibold text-2xl tracking-tight">{title}</h2>
         <p className="mt-1 text-sm text-ink-2">{description}</p>
@@ -157,10 +157,10 @@ function PrimaryButton({ disabled, onClick, children }: { disabled: boolean; onC
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className="inline-flex items-center gap-2 rounded-md bg-ink px-5 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-ink-2 disabled:cursor-not-allowed disabled:bg-ink/25"
+      className="btn btn-primary px-5 py-2.5 text-sm disabled:cursor-not-allowed disabled:bg-ink/25 disabled:shadow-none"
     >
       {children}
-      <ArrowRight />
+      <ArrowRight className="nudge" />
     </button>
   );
 }

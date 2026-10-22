@@ -13,7 +13,7 @@ export function TriageResult({ input, result, onRestart }: { input: TriageInput;
 
   return (
     <div className="space-y-5" aria-live="polite">
-      <section className={`rounded-xl border ${color.border} bg-paper`}>
+      <section className={`animate-rise rounded-2xl border ${color.border} bg-paper`}>
         <div className={`rounded-t-xl px-6 py-6 sm:px-8 ${color.soft}`}>
           <LevelScale level={result.level} />
           <p className={`mt-6 text-xs font-semibold uppercase tracking-[0.16em] ${color.text}`}>{info.label}</p>
@@ -81,7 +81,7 @@ export function TriageResult({ input, result, onRestart }: { input: TriageInput;
         )}
       </section>
 
-      <section className="flex flex-col gap-4 rounded-xl border border-line bg-paper px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+      <section className="flex animate-rise flex-col gap-4 rounded-2xl border border-line bg-paper px-6 py-5 [animation-delay:120ms] sm:flex-row sm:items-center sm:justify-between sm:px-8">
         <div className="text-sm">
           <p className="font-semibold">You told us</p>
           <p className="mt-1 text-ink-2">{input.symptoms.map((id) => symptomById.get(id)?.label).join(", ")}</p>

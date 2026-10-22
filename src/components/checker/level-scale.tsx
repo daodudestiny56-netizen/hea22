@@ -17,7 +17,9 @@ export function LevelScale({ level }: { level: TriageLevel }) {
     <div>
       <div className="grid grid-cols-4 gap-1.5" aria-hidden="true">
         {scale.map((l) => (
-          <span key={l} className={`h-1.5 rounded-full ${l === level ? levelColor[l].bar : "bg-sand"}`} />
+          <span key={l} className="h-1.5 overflow-hidden rounded-full bg-sand">
+            {l === level && <span className={`block h-full origin-left animate-grow-x rounded-full [animation-delay:250ms] ${levelColor[l].bar}`} />}
+          </span>
         ))}
       </div>
       <div className="mt-2 grid grid-cols-4 gap-1.5 text-[11px] text-muted sm:text-xs">

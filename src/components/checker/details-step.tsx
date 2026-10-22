@@ -10,7 +10,7 @@ export interface Details {
 }
 
 const option =
-  "flex cursor-pointer rounded-md border border-line bg-paper px-3.5 py-3 text-sm transition-colors hover:border-ink/30 has-checked:border-ink has-checked:bg-ink has-checked:text-paper has-focus-visible:outline-2 has-focus-visible:outline-accent";
+  "flex cursor-pointer rounded-lg border border-line bg-paper px-3.5 py-3 text-sm transition-[background-color,border-color,color,transform] duration-200 active:scale-[0.98] hover:border-ink/30 has-checked:border-ink has-checked:bg-ink has-checked:text-paper has-focus-visible:outline-2 has-focus-visible:outline-accent";
 
 export function DetailsStep({ details, onChange }: { details: Details; onChange: (d: Details) => void }) {
   return (

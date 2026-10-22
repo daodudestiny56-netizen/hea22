@@ -42,7 +42,7 @@ export function SymptomStep({ selected, onToggle }: { selected: string[]; onTogg
                       type="button"
                       aria-pressed={isSelected}
                       onClick={() => onToggle(s.id)}
-                      className={`flex items-start gap-3 rounded-md border px-3.5 py-3 text-left text-sm transition-colors ${
+                      className={`flex items-start gap-3 rounded-lg border px-3.5 py-3 text-left text-sm transition-[background-color,border-color,color,transform] duration-200 active:scale-[0.98] ${
                         isSelected
                           ? "border-ink bg-ink text-paper"
                           : "border-line bg-paper text-ink hover:border-ink/30"
@@ -54,7 +54,7 @@ export function SymptomStep({ selected, onToggle }: { selected: string[]; onTogg
                         }`}
                         aria-hidden="true"
                       >
-                        {isSelected && <Check className="h-3 w-3" />}
+                        {isSelected && <Check className="h-3 w-3 animate-pop" />}
                       </span>
                       <span>
                         <span className="block">{s.label}</span>
