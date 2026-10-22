@@ -29,8 +29,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${bricolage.variable} ${plexSans.variable} min-h-screen`}>
+    // Browser extensions (Grammarly, ColorZilla, translators) add attributes to
+    // <html> and <body> before React loads. This only silences mismatches on
+    // these two elements' own attributes, not on anything rendered inside them.
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${bricolage.variable} ${plexSans.variable} min-h-screen`} suppressHydrationWarning>
         {children}
       </body>
     </html>
