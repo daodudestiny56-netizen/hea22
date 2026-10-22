@@ -26,7 +26,7 @@ export default function DashboardPage() {
       />
 
       <div className="mx-auto max-w-5xl space-y-8 px-5 py-8 sm:px-8">
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2 [&>*:nth-child(2)]:[animation-delay:90ms]">
           <ActionCard
             href="/dashboard/check"
             title="Check your symptoms"
@@ -41,7 +41,7 @@ export default function DashboardPage() {
           />
         </div>
 
-        <section className="rounded-xl border border-line bg-paper">
+        <section className="animate-rise rounded-2xl border border-line bg-paper [animation-delay:180ms]">
           <div className="flex flex-col gap-1 border-b border-line px-6 py-5 sm:flex-row sm:items-baseline sm:justify-between">
             <h2 className="font-semibold">The four levels of advice</h2>
             <p className="text-sm text-muted">Based on {rules.length} transparent rules</p>
@@ -59,7 +59,7 @@ export default function DashboardPage() {
           </ul>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-3">
+        <section className="grid animate-rise gap-4 [animation-delay:260ms] md:grid-cols-3">
           <Note title="Warning signs first">
             Emergency rules are checked before anything else, so a serious sign is never hidden by milder ones.
           </Note>
@@ -79,14 +79,14 @@ function ActionCard({ href, title, body, meta }: { href: string; title: string; 
   return (
     <Link
       href={href}
-      className="group flex flex-col rounded-xl border border-line bg-paper p-6 transition-colors hover:border-ink/25"
+      className="group flex animate-rise flex-col rounded-2xl border border-line bg-[linear-gradient(160deg,#fbfaf7_0%,#f3efe8_100%)] p-6 transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-ink/20 hover:shadow-[0_18px_36px_-22px_rgb(29_28_26/0.35)]"
     >
       <span className="text-xs text-muted">{meta}</span>
       <span className="mt-3 font-display font-semibold text-2xl tracking-tight">{title}</span>
       <span className="mt-2 flex-1 text-sm leading-relaxed text-ink-2">{body}</span>
       <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-accent">
         Start
-        <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
+        <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
       </span>
     </Link>
   );
@@ -94,7 +94,7 @@ function ActionCard({ href, title, body, meta }: { href: string; title: string; 
 
 function Note({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-line bg-paper/60 p-5">
+    <div className="rounded-2xl border border-line bg-paper/60 p-5">
       <h3 className="text-sm font-semibold">{title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-ink-2">{children}</p>
     </div>
