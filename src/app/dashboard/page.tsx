@@ -82,7 +82,7 @@ function ActionCard({ href, title, body, meta }: { href: string; title: string; 
       className="group flex flex-col rounded-xl border border-line bg-paper p-6 transition-colors hover:border-ink/25"
     >
       <span className="text-xs text-muted">{meta}</span>
-      <span className="mt-3 font-serif text-2xl tracking-tight">{title}</span>
+      <span className="mt-3 font-display font-semibold text-2xl tracking-tight">{title}</span>
       <span className="mt-2 flex-1 text-sm leading-relaxed text-ink-2">{body}</span>
       <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-accent">
         Start

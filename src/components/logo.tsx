@@ -9,7 +9,7 @@ export function Logo({ inverted = false }: { inverted?: boolean }) {
         <path d="M9 5.5h4v3.5h3.5v4H13v3.5H9V13H5.5V9H9z" fill={inverted ? "#2f4943" : "#f7f5f1"} />
       </svg>
       <span
-        className={`font-serif text-[1.35rem] leading-none tracking-tight ${inverted ? "text-paper" : "text-ink"}`}
+        className={`font-display font-semibold text-[1.35rem] leading-none tracking-tight ${inverted ? "text-paper" : "text-ink"}`}
       >
         {site.name}
       </span>

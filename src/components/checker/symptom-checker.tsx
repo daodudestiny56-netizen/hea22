@@ -140,7 +140,7 @@ function Panel({
   return (
     <section className="rounded-xl border border-line bg-paper">
       <div className="border-b border-line px-6 py-5 sm:px-8">
-        <h2 className="font-serif text-2xl tracking-tight">{title}</h2>
+        <h2 className="font-display font-semibold text-2xl tracking-tight">{title}</h2>
         <p className="mt-1 text-sm text-ink-2">{description}</p>
       </div>
       <div className="px-6 py-6 sm:px-8">{children}</div>

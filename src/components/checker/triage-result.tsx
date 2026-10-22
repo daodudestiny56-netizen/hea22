@@ -17,7 +17,7 @@ export function TriageResult({ input, result, onRestart }: { input: TriageInput;
         <div className={`rounded-t-xl px-6 py-6 sm:px-8 ${color.soft}`}>
           <LevelScale level={result.level} />
           <p className={`mt-6 text-xs font-semibold uppercase tracking-[0.16em] ${color.text}`}>{info.label}</p>
-          <h2 className="mt-2 font-serif text-3xl leading-tight tracking-tight sm:text-4xl">{info.headline}</h2>
+          <h2 className="mt-2 font-display font-semibold text-3xl leading-tight tracking-tight sm:text-4xl">{info.headline}</h2>
           <p className="mt-3 max-w-2xl text-ink-2">{info.action}</p>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">

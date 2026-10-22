@@ -22,8 +22,8 @@ export function Hero() {
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">
             Symptom checker and clinic locator
           </p>
-          <h1 className="mt-5 text-balance font-serif text-[2.6rem] leading-[1.05] tracking-tight text-ink sm:text-6xl">
-            Know how soon to seek care, <em className="text-accent">and where to go.</em>
+          <h1 className="mt-5 text-balance font-display font-semibold text-[2.6rem] leading-[1.05] tracking-tight text-ink sm:text-6xl">
+            Know how soon to seek care, <span className="text-accent">and where to go.</span>
           </h1>
           <p className="mt-6 max-w-lg text-lg leading-relaxed text-ink-2">
             Answer a few questions about how you feel. We suggest whether to call 112, see a doctor today or rest at
@@ -86,7 +86,7 @@ export function Hero() {
             </div>
           </div>
 
-          <p className="mt-7 font-serif text-2xl leading-snug text-ink">See a doctor today</p>
+          <p className="mt-7 font-display font-semibold text-2xl leading-snug text-ink">See a doctor today</p>
           <p className="mt-2 text-sm leading-relaxed text-ink-2">
             Fever with chills can be malaria. Get a malaria test within 24 hours.
           </p>

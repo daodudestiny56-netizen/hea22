@@ -19,7 +19,7 @@ export function ResponsibleUse() {
     <section id="responsible-use" className="scroll-mt-20 bg-[linear-gradient(180deg,#efebe4_0%,#f7f5f1_100%)]">
       <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 md:py-28">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Responsible use</p>
-        <h2 className="mt-4 max-w-2xl font-serif text-4xl leading-tight tracking-tight sm:text-5xl">
+        <h2 className="mt-4 max-w-2xl font-display font-semibold text-4xl leading-tight tracking-tight sm:text-5xl">
           A guide to the next step, not a diagnosis.
         </h2>
 

@@ -15,7 +15,7 @@ export function EmergencyBand() {
     <section className="bg-[linear-gradient(135deg,#3a1d19_0%,#5a2a23_100%)] text-paper">
       <div className="mx-auto grid max-w-6xl gap-12 px-5 py-16 sm:px-8 md:grid-cols-[1fr_1.3fr] md:py-20">
         <div>
-          <h2 className="font-serif text-3xl leading-tight tracking-tight sm:text-4xl">Some symptoms cannot wait.</h2>
+          <h2 className="font-display font-semibold text-3xl leading-tight tracking-tight sm:text-4xl">Some symptoms cannot wait.</h2>
           <p className="mt-4 max-w-sm text-paper/75">
             If you or someone near you has any of these, skip the checker and call for help now.
           </p>
