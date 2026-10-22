@@ -172,7 +172,7 @@ export function ClinicFinder({ initialFilter = "all" }: { initialFilter?: Filter
             type="button"
             onClick={locate}
             disabled={status === "locating"}
-            className="inline-flex items-center justify-center gap-2 rounded-md bg-ink px-4 py-3 text-sm font-medium text-paper hover:bg-ink-2 disabled:opacity-60"
+            className="btn btn-primary px-4 py-3 text-sm disabled:opacity-70"
           >
             <Crosshair />
             {status === "locating"
@@ -318,10 +318,17 @@ export function ClinicFinder({ initialFilter = "all" }: { initialFilter?: Filter
           )}
 
           <ul ref={listRef} className="flex-1 divide-y divide-line overflow-y-auto">
-            {visible.map((f) => (
-              <li key={f.id} data-id={f.id}>
+            {visible.map((f, i) => (
+              <li
+                key={f.id}
+                data-id={f.id}
+                className="animate-rise [animation-duration:0.5s]"
+                style={{ animationDelay: `${Math.min(i, 10) * 40}ms` }}
+              >
                 <div
-                  className={`px-5 py-4 transition-colors ${f.id === selectedId ? "bg-paper-2" : ""}`}
+                  className={`border-l-2 px-5 py-4 transition-colors duration-300 ${
+                    f.id === selectedId ? "border-accent bg-paper-2" : "border-transparent hover:bg-paper-2/60"
+                  }`}
                 >
                   <button type="button" onClick={() => setSelectedId(f.id)} className="block w-full text-left">
                     <span className="flex items-start justify-between gap-3">
