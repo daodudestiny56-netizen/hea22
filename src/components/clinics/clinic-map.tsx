@@ -1,9 +1,24 @@
 "use client";
 
 import "leaflet/dist/leaflet.css";
-import type { CircleMarker as LeafletCircleMarker, Map as LeafletMap } from "leaflet";
+import {
+  divIcon,
+  type CircleMarker as LeafletCircleMarker,
+  type Map as LeafletMap,
+  type Marker as LeafletMarker,
+} from "leaflet";
 import { useEffect, useRef } from "react";
-import { AttributionControl, Circle, CircleMarker, MapContainer, Popup, TileLayer, useMap } from "react-leaflet";
+import {
+  AttributionControl,
+  Circle,
+  CircleMarker,
+  MapContainer,
+  Marker,
+  Popup,
+  TileLayer,
+  useMap,
+  useMapEvents,
+} from "react-leaflet";
 import { directionsUrl, formatDistance, type LatLon } from "@/lib/geo/distance";
 import { facilityLabels, type Facility, type FacilityType } from "@/lib/geo/facilities";
 
@@ -22,6 +37,19 @@ function zoomForRadius(radius: number) {
   return 11;
 }
 
+const originIcon = divIcon({
+  className: "",
+  html: '<span style="display:block;width:18px;height:18px;border-radius:50%;background:#2563a8;border:3px solid #f7f5f1;box-shadow:0 1px 4px rgb(29 28 26 / 0.4)"></span>',
+  iconSize: [18, 18],
+  iconAnchor: [9, 9],
+  popupAnchor: [0, -10],
+});
+
+function PickHandler({ onPick }: { onPick: (point: LatLon) => void }) {
+  useMapEvents({ click: (e) => onPick({ lat: e.latlng.lat, lon: e.latlng.lng }) });
+  return null;
+}
+
 function ViewController({ center, radius, hasOrigin }: { center: LatLon; radius: number; hasOrigin: boolean }) {
   const map = useMap();
   useEffect(() => {
@@ -37,13 +65,18 @@ export default function ClinicMap({
   facilities,
   selectedId,
   onSelect,
+  picking,
+  onMoveOrigin,
 }: {
   center: LatLon;
-  origin: LatLon | null;
+  origin: (LatLon & { accuracy: number | null }) | null;
   radius: number;
   facilities: FacilityWithDistance[];
   selectedId: string | null;
   onSelect: (id: string) => void;
+  /** When true, clicking the map sets the search location */
+  picking: boolean;
+  onMoveOrigin: (point: LatLon) => void;
 }) {
   const mapRef = useRef<LeafletMap | null>(null);
   const markers = useRef<Record<string, LeafletCircleMarker>>({});
@@ -62,7 +95,7 @@ export default function ClinicMap({
       zoom={6}
       scrollWheelZoom
       attributionControl={false}
-      className="h-full w-full"
+      className={`h-full w-full ${picking ? "cursor-crosshair [&_.leaflet-interactive]:cursor-crosshair" : ""}`}
     >
       <AttributionControl prefix='<a href="https://leafletjs.com">Leaflet</a>' />
       <TileLayer
@@ -72,20 +105,38 @@ export default function ClinicMap({
       />
       <ViewController center={center} radius={radius} hasOrigin={origin !== null} />
 
+      {picking && <PickHandler onPick={onMoveOrigin} />}
+
       {origin && (
         <>
           <Circle
             center={[origin.lat, origin.lon]}
             radius={radius}
+            interactive={false}
             pathOptions={{ color: "#2f4943", weight: 1, dashArray: "4 6", fillColor: "#2f4943", fillOpacity: 0.04 }}
           />
-          <CircleMarker
-            center={[origin.lat, origin.lon]}
-            radius={7}
-            pathOptions={{ color: "#f7f5f1", weight: 3, fillColor: "#2563a8", fillOpacity: 1 }}
+          {origin.accuracy !== null && origin.accuracy > 30 && (
+            <Circle
+              center={[origin.lat, origin.lon]}
+              radius={origin.accuracy}
+              interactive={false}
+              pathOptions={{ stroke: false, fillColor: "#2563a8", fillOpacity: 0.12 }}
+            />
+          )}
+          <Marker
+            position={[origin.lat, origin.lon]}
+            icon={originIcon}
+            draggable
+            zIndexOffset={1000}
+            eventHandlers={{
+              dragend: (e) => {
+                const { lat, lng } = (e.target as LeafletMarker).getLatLng();
+                onMoveOrigin({ lat, lon: lng });
+              },
+            }}
           >
-            <Popup>Your search location</Popup>
-          </CircleMarker>
+            <Popup>You are here. Drag this pin if it is in the wrong place.</Popup>
+          </Marker>
         </>
       )}
 
